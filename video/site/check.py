@@ -6,7 +6,8 @@
 For each browser:
   sizes     at common screens a region is at most 86% of the screen height, nothing sticks out sideways,
             every headline of the shot table fits the words slot, and the first screen (the name) is one screen
-  playing   starts when held in the middle, not when passed; pauses, goes on, starts again; one at a time
+  playing   starts when held in the middle, not when passed, and holds its first picture before it moves; pauses,
+            goes on, starts again; one at a time
   pictures  each shot at a few moments, on a laptop screen and on a phone (out/<browser>/*.png)
   text      where every piece of text of each shot is and how tall it is. Scenes measure text while they are built,
             so a browser that sets a word a little wider can wrap a line differently: the browsers are compared
@@ -134,7 +135,10 @@ def playing(b, url, log):
         to(pg, 0, 0.1); pg.wait_for_timeout(250); s1 = st(); pg.wait_for_timeout(900); s2 = st()
         c("10% off the middle: starts after the wait, not before", not s1[0]["playing"] and s2[0]["playing"], (s1[0]["t"], s2[0]["t"]))
         c("button says Pause while it plays", pg.locator(".pg-btn").nth(0).inner_text().strip() == "Pause")
-        pg.wait_for_timeout(1500); a = st()[0]["t"]; pg.wait_for_timeout(3000); z = st()[0]["t"]
+        s = st(); c("holds its first picture before anything moves", s[0]["playing"] and s[0]["t"] == 0, s[0])
+        pg.wait_for_timeout(1600)
+        c("then moves", st()[0]["t"] > 0, st()[0]["t"])
+        pg.wait_for_timeout(600); a = st()[0]["t"]; pg.wait_for_timeout(3000); z = st()[0]["t"]
         speed = (z - a) / 3
         ms = pg.evaluate("PAGE.players[0].ms")
         log.add("pass" if speed > 0.9 else "warn" if speed > 0.5 else "FAIL", f"{label}: speed", f"{speed:.2f} of film speed, {ms:.1f} ms to draw a frame")
@@ -146,7 +150,7 @@ def playing(b, url, log):
         s = st(); c("brought back: goes on from where it was", s[0]["playing"] and at <= s[0]["t"] < at + 1.5, (at, s[0]["t"]))
         to(pg, 1); pg.wait_for_timeout(1200)
         s = st(); c("next region starts, the first is back at its start", s[1]["playing"] and not s[0]["playing"] and s[0]["t"] == 0, s)
-        pg.evaluate("(() => { const P = PAGE.players[1]; P.draw(P.t1 - 0.5); })()"); pg.wait_for_timeout(1500)
+        pg.evaluate("(() => { const P = PAGE.players[1]; P.wait = 0; P.draw(P.t1 - 0.5); })()"); pg.wait_for_timeout(1500)
         s = st(); c("at its end: stops, button says Replay", s[1]["done"] and not s[1]["playing"] and pg.locator(".pg-btn").nth(1).inner_text().strip() == "Replay", s[1])
         pg.locator(".pg-btn").nth(1).click(); pg.wait_for_timeout(300)
         s = st(); c("Replay plays from the start", s[1]["playing"] and s[1]["t"] < 0.8, s[1])

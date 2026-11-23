@@ -4,17 +4,20 @@
 // The headline and the line under it are the page's own text, taken from the shot table (../src/shots.js).
 //
 // When a block plays (sizes are in page.css):
-//   starts   its region (words + picture) has been in the middle of the screen, within TOL, for DWELL
+//   starts   its region (words + picture) has been in the middle of the screen, within TOL, for DWELL;
+//            it then shows its first picture, still, for LEAD before anything moves (nobody misses the beginning)
 //   pauses   less than half of its picture is on screen; it goes on from there when it is brought back
 //   resets   it has left the screen altogether: the next time it plays from the start
 //   one at a time; the button plays or pauses at once, wherever the block is
-// Try other values in the address: ?tol=12 (percent of the screen height) &dwell=400 (ms) &snap=0 &guide=1
+// Try other values in the address: ?tol=12 (percent of the screen height) &dwell=400 (ms) &lead=1500 (ms) &snap=0 &guide=1
 (async function () {
   const { h } = V;
   const Q = new URLSearchParams(location.search);
   const num = (k, d) => (Q.get(k) !== null && isFinite(+Q.get(k)) ? +Q.get(k) : d);
   const TOL = num("tol", 12) / 100;     // how far the region's middle may be from the screen's middle (of the screen height)
   const DWELL = num("dwell", 400);      // ms it has to stay there
+  const LEAD = num("lead", 1500) / 1000;   // s the first picture is held, still, once it has started by itself
+  const LEAD_ASKED = 0.3;               // the same when the viewer pressed Play or Replay: they are looking already
   const HALF = 0.5;                     // it pauses when less than this much of its picture is on screen
   const STAGE = [80, 214, 1760, 842];   // where the app window sits in the film's 1920x1080 frame (base.css)
   const TALL = "(max-aspect-ratio: 1/1)";   // upright screens show a square part of the window (page.css: html.pg-tall)
@@ -61,7 +64,7 @@
     s.root.style.background = "transparent";   // the band is the backdrop now: one surface, no edge
 
     // the shot's stretch of the act: from the window in place (after the title card) to just before it leaves
-    const P = { sec, region, view, scene: s, t0: S.at, t1: S.end - 0.3, playing: false, done: false, held: false, centred: false, ms: 0 };
+    const P = { sec, region, view, scene: s, t0: S.at, t1: S.end - 0.3, playing: false, done: false, held: false, centred: false, ms: 0, wait: 0 };
     const tallX = (u) => {
       let i = 0;
       while (i < keys.length - 1 && u >= keys[i + 1][0]) i++;
@@ -81,14 +84,15 @@
       const k = P.playing ? "pause" : P.done ? "replay" : "play";
       btn.innerHTML = ICON[k] + `<span>${{ pause: "Pause", play: "Play", replay: "Replay" }[k]}</span>`;
     };
-    P.play = () => {
+    P.play = (asked) => {
       for (const o of players) if (o !== P && o.playing) o.pause();   // one at a time
       if (P.done) { P.done = false; P.draw(P.t0); }
+      if (P.t <= P.t0 + 1e-6) P.wait = asked ? LEAD_ASKED : LEAD;     // from its start: the first picture stays for a moment
       P.playing = true; P.sync(); run();
     };
     P.pause = () => { P.playing = false; P.sync(); };
-    P.reset = () => { P.playing = false; P.done = false; P.held = false; P.draw(P.t0); P.sync(); };
-    btn.addEventListener("click", () => { if (P.playing) { P.held = true; P.pause(); } else { P.held = false; P.play(); } });
+    P.reset = () => { P.playing = false; P.done = false; P.held = false; P.wait = 0; P.draw(P.t0); P.sync(); };
+    btn.addEventListener("click", () => { if (P.playing) { P.held = true; P.pause(); } else { P.held = false; P.play(true); } });
 
     // before it plays: the window in place, still. Without motion: the finished picture, and a button to play it
     if (reduce) { P.t = P.t1; P.held = true; P.done = true; P.draw(P.t1); } else { P.t = P.t0; P.draw(P.t0); }
@@ -135,6 +139,7 @@
     let any = false;
     for (const P of players) {
       if (!P.playing) continue;
+      if (P.wait > 0) { P.wait -= dt; any = true; continue; }       // still on its first picture
       const a = performance.now();
       P.draw(P.t + dt);
       P.ms += (performance.now() - a - P.ms) * 0.1;   // running mean of the cost of one frame
@@ -150,5 +155,5 @@
   }
 
   look();
-  window.PAGE = { players, TOL, DWELL, check };   // for checks: PAGE.players[0].draw(t), .ms
+  window.PAGE = { players, TOL, DWELL, LEAD, check };   // for checks: PAGE.players[0].draw(t), .ms
 })();
