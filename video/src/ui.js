@@ -132,7 +132,7 @@ V.ui = (function () {
     const stage = h("div.stage"), cam = h("div.cam"), el = h("div.app");
     stage.append(cam); cam.append(el); s.root.append(stage);
     s.init(cam, { x: 0, y: 0, scale: BASE });
-    stageFx(s, stage);
+    if (!s.act.seg) stageFx(s, stage);   // a page segment's window is there from its first frame (segments.js)
 
     const tabsEl = h("div.wb-tabs", { id: "wb-tabs" });
     const newBtn = h("button.wb-new", { html: ICON.plus });

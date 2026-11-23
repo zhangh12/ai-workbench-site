@@ -20,7 +20,8 @@
 <link rel="stylesheet" href="../src/base.css">
 <link rel="stylesheet" href="../src/sketch.css">
 <link rel="stylesheet" href="../src/scenes.css">
-<link rel="stylesheet" href="page.css?v=22">
+<link rel="stylesheet" href="../src/segments.css?v=1">
+<link rel="stylesheet" href="page.css?v=31">
 </head>
 <body class="pg">
 
@@ -30,27 +31,36 @@
   <div class="pg-more" aria-hidden="true"><span>Scroll</span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
 </header>
 
-<main>
-  <!-- one block = one shot of the film: data-act and data-shot name it in ../src/shots.js; its words come from there too.
-       data-tall: on upright screens (phones) the picture is a square part of the window; "seconds share" pairs say where
-       its left edge is (share of the window's width) at each time into the shot, and it glides from one to the next -->
-  <section class="pg-band" data-act="explore" data-shot="c2" data-tall="0 0, 1.9 0, 2.7 .085, 4.0 .085, 4.7 0"></section>
-  <section class="pg-band" data-act="refs" data-shot="d2" data-tall="0 .34, 0.3 .34, 1.2 .27, 2.9 .27, 3.6 .52, 8.4 .52, 9.2 .27, 11.0 .27, 11.8 .52"></section>
+<main id="segments">
+  <!-- one region per segment: filled by page.js from ../src/segments.js -->
 </main>
 
 <footer class="pg-foot">
-  <p>Prototype. The blocks above are drawn live by animation code; no video file is loaded.</p>
+  <p>Prototype. The pictures above are drawn live by animation code; no video file is loaded.</p>
 </footer>
 
 <script src="../node_modules/katex/dist/katex.min.js"></script>
 <script src="../data/data.js"></script>
-<script src="../src/engine.js"></script>
-<script src="../src/shots.js?v=2"></script>
-<script src="../src/ui.js"></script>
-<script src="../src/content.js"></script>
+<script src="../src/engine.js?v=2"></script>
+<script src="../src/shots.js?v=3"></script>
+<script src="../src/ui.js?v=2"></script>
+<script src="../src/content.js?v=2"></script>
 <script src="../src/lung.js"></script>
-<script src="../src/scenes/explore.js"></script>
-<script src="../src/scenes/refs.js"></script>
-<script src="page.js?v=22"></script>
+<script src="../src/segments.js?v=2"></script>
+<script src="../src/segments/s01.js?v=2"></script>
+<script src="../src/segments/s02.js?v=2"></script>
+<script src="../src/segments/s03.js?v=2"></script>
+<script src="../src/segments/s04.js?v=2"></script>
+<script src="../src/segments/s05.js?v=2"></script>
+<script src="../src/segments/s06.js?v=2"></script>
+<script src="../src/segments/s07.js?v=2"></script>
+<script src="../src/segments/s08.js?v=2"></script>
+<script src="../src/segments/s09.js?v=2"></script>
+<script src="../src/segments/s10.js?v=2"></script>
+<script src="../src/segments/s11.js?v=2"></script>
+<script src="../src/segments/s12.js?v=2"></script>
+<script src="../src/segments/s13.js?v=2"></script>
+<script src="../src/segments/s14.js?v=2"></script>
+<script src="page.js?v=31"></script>
 </body>
 </html>

@@ -223,6 +223,7 @@ window.V = (function () {
   const builders = {};
   const film = { scenes: [], dur: 0, ready: false };
   function scene(id, build) { builders[id] = build; }
+  const sceneBuilt = (id) => builders[id];   // is there a scene for this id?
   // one act, built into `frame` (a laid-out, unscaled 1920x1080 box: scenes measure while they are built)
   function make(act, frame) {
     const s = new Scene(act);
@@ -252,5 +253,5 @@ window.V = (function () {
     film.t = t;
   }
 
-  return { FPS, BPM, BEAT, BAR, W, H, EASE, h, frag, esc, Scene, scene, make, build, seek, film, cardPlan, DOCK, TYPE_CPS };
+  return { FPS, BPM, BEAT, BAR, W, H, EASE, h, frag, esc, Scene, scene, sceneBuilt, make, build, seek, film, cardPlan, DOCK, TYPE_CPS };
 })();

@@ -18,7 +18,7 @@ V.C = (function () {
   const coxTable = (m, age) => `<table><thead><tr><th>Term</th><th>HR (95% CI)</th><th>p</th></tr></thead><tbody>
     <tr><td>Female vs male</td><td>${hr(m.sex)}</td><td>${pv(m.sex.p)}</td></tr>
     <tr data-k="ecog-row"><td>ECOG, per point</td><td>${hr(m.ecog)}</td><td>${pv(m.ecog.p)}</td></tr>
-    ${age ? `<tr data-k="age-row"><td>Age, per year</td><td>${hr(m.age)}</td><td>${m.age.p.toFixed(2)}</td></tr>` : ""}</tbody></table>`;
+    ${age ? `<tr data-k="age-row"><td>Age, per year</td><td>${hr(m.age)}</td><td>${pv(m.age.p)}</td></tr>` : ""}</tbody></table>`;
   const missRows = Object.entries(miss).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
 
   const B = V.ui.bars, PM = D.pubmed, TR = D.trial;
@@ -67,7 +67,7 @@ V.C = (function () {
 
     // ---- tab "Cox model"
     coxReply: `<p><b>Adjusted for ECOG:</b></p>${coxTable(cox.ecog)}
-      <p><span style="color:var(--wb-warn)">${cox.n_missing_ecog} patient without ECOG excluded</span> (n = ${cox.ecog.sex.n}).</p>`,
+      <p><span style="color:var(--wb-warn)">${cox.n_missing_ecog} patient${cox.n_missing_ecog === 1 ? "" : "s"} without ECOG excluded</span> (n = ${cox.ecog.sex.n}).</p>`,
     coxReport: (age) => `<h1>Cox model: sex, adjusted for ECOG${age ? " and age" : ""}</h1>
       <h2>Model</h2>
       ${tex(`h(t \\mid x) = h_0(t)\\,\\exp(\\beta_1\\,\\text{female} + \\beta_2\\,\\text{ECOG}${age ? " + \\beta_3\\,\\text{age}" : ""})`, true)}

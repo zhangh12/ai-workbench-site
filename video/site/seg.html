@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Segment preview</title>
+<!-- One segment at full size, for making and checking it: seg.html?id=s04&t=3.2
+     space = play / pause, arrows = half a second, the slider scrubs. window.SEG.seek(t) for scripts (stills.py). -->
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-sans/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-sans/400-italic.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-sans/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-sans/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-serif/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-serif/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-mono/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-mono/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-mono/600.css">
+<link rel="stylesheet" href="../node_modules/katex/dist/katex.min.css">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="../src/base.css">
+<link rel="stylesheet" href="../src/sketch.css">
+<link rel="stylesheet" href="../src/scenes.css">
+<link rel="stylesheet" href="../src/segments.css">
+<style>
+html, body { margin: 0; height: 100%; background: #22211f; overflow: hidden; font-family: var(--wb-font); }
+#fit { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+#frame { position: absolute; inset: 0; overflow: hidden; }
+#says { position: absolute; left: 80px; top: 214px; width: 1760px; height: 842px; pointer-events: none; z-index: 9000; }
+.say { position: absolute; padding: 0.22em 0.6em; border-radius: 0.2em; background: #fdfcf9; color: #141413; box-shadow: 0 2px 10px rgba(20,20,19,.22); font: 600 44px/1.25 "IBM Plex Serif", Georgia, serif; white-space: nowrap; }
+.say.w-bc { left: 50%; bottom: 5%; transform: translateX(-50%); } .say.w-tc { left: 50%; top: 5%; transform: translateX(-50%); }
+.say.w-bl { left: 3%; bottom: 5%; } .say.w-br { right: 3%; bottom: 5%; } .say.w-tl { left: 3%; top: 5%; } .say.w-tr { right: 3%; top: 5%; }
+#dev { position: fixed; left: 0; right: 0; bottom: 0; height: 44px; display: flex; gap: 12px; align-items: center; padding: 0 14px; background: #141413; color: #ddd; font: 13px var(--wb-mono); }
+#dev input { flex: 1; }
+</style>
+</head>
+<body>
+<div id="fit"><div id="frame"></div><div id="says"></div></div>
+<div id="dev"><button id="play">Play</button><input id="range" type="range" min="0" step="0.0333" value="0"><span id="label"></span></div>
+<script src="../node_modules/katex/dist/katex.min.js"></script>
+<script src="../data/data.js"></script>
+<script src="../src/engine.js"></script>
+<script src="../src/shots.js"></script>
+<script src="../src/ui.js"></script>
+<script src="../src/content.js"></script>
+<script src="../src/lung.js"></script>
+<script src="../src/segments.js"></script>
+<script>
+(async function () {
+  const q = new URLSearchParams(location.search), id = q.get("id") || "s01";
+  const g = V.SEGMENTS.find((x) => x.id === id);
+  if (!g) { document.body.textContent = "no segment " + id; return; }
+  await new Promise((ok, no) => { const sc = document.createElement("script"); sc.src = `../src/segments/${id}.js?` + Date.now(); sc.onload = ok; sc.onerror = no; document.body.append(sc); });
+  await Promise.all([...document.fonts].map((f) => f.load().catch(() => null)));
+  await document.fonts.ready;
+  const frame = document.getElementById("frame"), says = document.getElementById("says");
+  if (!V.sceneBuilt(id)) { document.body.textContent = "segment " + id + " has no scene yet"; window.SEG = { ready: true, missing: true }; return; }
+  const s = V.make(V.segAct(g), frame);
+  s.root.style.display = "block";
+  let t = 0, playing = false, last = 0;
+  const range = document.getElementById("range"), label = document.getElementById("label"), play = document.getElementById("play");
+  range.max = s.dur;
+  const seek = (x) => {
+    t = Math.max(0, Math.min(s.dur - 0.05, x)); s.apply(t);
+    says.textContent = ""; for (const y of V.sayAt(s, t)) { const e = V.h("div.say.w-" + y.where, y.text); e.style.opacity = y.p; says.append(e); }
+    range.value = t; label.textContent = `${id}  ${t.toFixed(2)}s / ${s.dur.toFixed(1)}s`;
+  };
+  const fit = () => { const k = Math.min(innerWidth / 1920, (innerHeight - 44) / 1080); const f = document.getElementById("fit"); f.style.transform = `scale(${k})`; f.style.left = (innerWidth - 1920 * k) / 2 + "px"; };
+  addEventListener("resize", fit); fit();
+  const tick = (now) => { if (!playing) return; seek(t + Math.min(0.1, (now - last) / 1000)); last = now; if (t >= s.dur - 0.06) { playing = false; play.textContent = "Play"; } else requestAnimationFrame(tick); };
+  const toggle = () => { playing = !playing; play.textContent = playing ? "Pause" : "Play"; if (playing) { if (t >= s.dur - 0.06) seek(0); last = performance.now(); requestAnimationFrame(tick); } };
+  play.onclick = toggle; range.oninput = () => { playing = false; play.textContent = "Play"; seek(+range.value); };
+  addEventListener("keydown", (e) => { if (e.key === " ") { e.preventDefault(); toggle(); } else if (e.key === "ArrowRight") seek(t + 0.5); else if (e.key === "ArrowLeft") seek(t - 0.5); });
+  seek(+(q.get("t") || 0));
+  window.SEG = { ready: true, dur: s.dur, seek, scene: s, says: () => V.sayAt(s, t) };
+})().catch((e) => { document.body.textContent = String(e && e.stack || e); window.SEG = { ready: true, error: String(e) }; });
+</script>
+</body>
+</html>

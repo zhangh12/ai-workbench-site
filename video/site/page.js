@@ -1,14 +1,14 @@
-// Plays single shots of the film on a web page, each when it is brought to the middle of the screen.
-// A block is <section class="pg-band" data-act="explore" data-shot="c2">: the act's scene is built once for that
-// block (the film's own code, ../src/scenes), and the block plays the shot's stretch of it, after its title card.
-// The headline and the line under it are the page's own text, taken from the shot table (../src/shots.js).
+// The page: one numbered region per segment (../src/segments.js), each drawn live by its scene
+// (../src/segments/sNN.js, the film's own engine) and played when it is brought to the middle of the screen.
+// The words of a region are the page's own text; the picture is only the app window.
 //
-// When a block plays (sizes are in page.css):
+// When a region plays (sizes are in page.css; the rules in ../planning/rules.md):
 //   starts   its region (words + picture) has been in the middle of the screen, within TOL, for DWELL;
 //            it then shows its first picture, still, for LEAD before anything moves (nobody misses the beginning)
 //   pauses   less than half of its picture is on screen; it goes on from there when it is brought back
 //   resets   it has left the screen altogether: the next time it plays from the start
-//   one at a time; the button plays or pauses at once, wherever the block is
+//   one at a time; the button plays or pauses at once, wherever the region is
+// A region's scene is built when it comes near (about a screen away), not when the page opens.
 // Try other values in the address: ?tol=12 (percent of the screen height) &dwell=400 (ms) &lead=1500 (ms) &snap=0 &guide=1
 (async function () {
   const { h } = V;
@@ -19,6 +19,7 @@
   const LEAD = num("lead", 1500) / 1000;   // s the first picture is held, still, once it has started by itself
   const LEAD_ASKED = 0.3;               // the same when the viewer pressed Play or Replay: they are looking already
   const HALF = 0.5;                     // it pauses when less than this much of its picture is on screen
+  const NEAR = 1.2;                     // a scene is built when its region is within this many screens
   const STAGE = [80, 214, 1760, 842];   // where the app window sits in the film's 1920x1080 frame (base.css)
   const TALL = "(max-aspect-ratio: 1/1)";   // upright screens show a square part of the window (page.css: html.pg-tall)
   const ICON = {
@@ -38,33 +39,38 @@
   const slogan = document.getElementById("slogan");
   if (slogan) slogan.textContent = V.SLOGAN;
 
-  const players = [...document.querySelectorAll("section[data-shot]")].map(mount);
+  // a backdrop's colours, as the scenes have them (base.css)
+  const tone = (bg) => {
+    const p = h("section.scene.bg-" + bg); p.style.cssText = "display:block;position:absolute;left:-9999px;width:1px;height:1px";
+    document.body.append(p);
+    const cs = getComputedStyle(p), out = [cs.backgroundColor, cs.getPropertyValue("--cap"), cs.getPropertyValue("--cap2")];
+    p.remove();
+    return out;
+  };
 
-  function mount(sec) {
-    const act = V.ACTS.find((a) => a.id === sec.dataset.act), shot = act && act.shots.find((x) => x.id === sec.dataset.shot);
-    if (!shot) throw new Error(`no shot ${sec.dataset.act}/${sec.dataset.shot} in the shot table`);
-    // data-tall="0 .27, 3.3 .27, 4.1 .52": on upright screens, where the left edge of the square picture is
-    // (as a share of the window's width) at each time (seconds into the shot); it glides between them
-    const keys = (sec.dataset.tall || "0 0").split(",").map((p) => p.trim().split(/\s+/).map(Number));
+  const host = document.getElementById("segments");
+  const only = Q.get("only") ? Q.get("only").split(",") : null;      // ?only=s04,s05: just these (while working on them)
+  const players = V.SEGMENTS.filter((g) => !only || only.includes(g.id)).map(mount);
 
-    // the words: *...* in a headline marks the key words, as in the film
+  function mount(g) {
+    const sec = h("section.pg-band", { id: g.id, "data-seg": g.id });
+    const [band, cap, cap2] = tone(g.bg);
+    sec.style.setProperty("--band", band); sec.style.setProperty("--cap", cap); sec.style.setProperty("--cap2", cap2);
+    const keys = (g.tall || "0 0").split(",").map((p) => p.trim().split(/\s+/).map(Number));
+
+    // the words: the number, the headline (*...* marks the key words), the line under it
     const head = h("h2.pg-head");
-    shot.head.split("*").forEach((part, i) => { if (part) head.append(i % 2 ? h("mark", part) : part); });
-    const frame = h("div.pg-frame"), view = h("div.pg-view", { "aria-hidden": "true" }, frame);
+    g.head.split("*").forEach((part, i) => { if (part) head.append(i % 2 ? h("mark", part) : part); });
+    const frame = h("div.pg-frame"), says = h("div.pg-says"), view = h("div.pg-view", { "aria-hidden": "true" }, frame, says);
     const btn = h("button.pg-btn", { type: "button" });
-    const region = h("div.pg-region", h("div.pg-words", head, shot.sub ? h("p.pg-sub", shot.sub) : null), h("div.pg-ctl", btn), view);
+    const words = h("div.pg-words", h("div.pg-num", { "aria-hidden": "true" }, g.n), h("div.pg-txt", head, g.sub ? h("p.pg-sub", g.sub) : null));
+    const region = h("div.pg-region", words, h("div.pg-ctl", btn), view);
     sec.append(region);
+    host.append(sec);
 
-    // built at full size, unscaled; only then fitted to the region
-    const s = V.make(act, frame), S = s.shots[shot.id];
-    // the band takes the scene's own backdrop and caption colours
-    const cs = getComputedStyle(s.root);
-    sec.style.setProperty("--band", cs.backgroundColor);
-    for (const k of ["--cap", "--cap2"]) sec.style.setProperty(k, cs.getPropertyValue(k));
-    s.root.style.background = "transparent";   // the band is the backdrop now: one surface, no edge
-
-    // the shot's stretch of the act: from the window in place (after the title card) to just before it leaves
-    const P = { sec, region, view, scene: s, t0: S.at, t1: S.end - 0.3, playing: false, done: false, held: false, centred: false, ms: 0, wait: 0 };
+    const has = !!V.sceneBuilt(g.id);
+    if (!has) { view.classList.add("pg-todo"); view.append(h("div.pg-todo-note", "This picture is still being made.")); btn.hidden = true; }
+    const P = { id: g.id, sec, region, view, scene: null, has, t0: 0, t1: g.secs - 0.05, t: 0, playing: false, done: false, held: false, centred: false, ms: 0, wait: 0 };
     const tallX = (u) => {
       let i = 0;
       while (i < keys.length - 1 && u >= keys[i + 1][0]) i++;
@@ -79,12 +85,30 @@
       frame.style.transform = `scale(${k}) translate(${-x}px,${-STAGE[1]}px)`;
       view.style.borderRadius = tall ? 16 * k + "px" : "";
     };
-    P.draw = (t) => { P.t = Math.max(P.t0, Math.min(P.t1, t)); s.apply(P.t); place(); };
+    // built at full size, unscaled; only then fitted to the region
+    P.build = () => {
+      if (P.scene || !has) return;
+      const s = V.make(V.segAct(g), frame);
+      s.root.style.background = "transparent";   // the band is the backdrop: one surface, no edge
+      P.scene = s;
+      P.draw(reduce ? P.t1 : P.t);
+    };
+    P.draw = (t) => {
+      P.t = Math.max(P.t0, Math.min(P.t1, t));
+      if (!P.scene) return;
+      P.scene.apply(P.t); place();
+      // the guiding lines over the picture (V.say in the scene)
+      const now = V.sayAt(P.scene, P.t), key = now.map((x) => x.where + x.text).join("|");
+      if (says._key !== key) { says._key = key; says.textContent = ""; for (const x of now) says.append(h("div.pg-say.w-" + x.where, x.text)); }
+      now.forEach((x, i) => { says.children[i].style.opacity = x.p; });
+    };
     P.sync = () => {
       const k = P.playing ? "pause" : P.done ? "replay" : "play";
       btn.innerHTML = ICON[k] + `<span>${{ pause: "Pause", play: "Play", replay: "Replay" }[k]}</span>`;
     };
     P.play = (asked) => {
+      if (!has) return;
+      P.build();
       for (const o of players) if (o !== P && o.playing) o.pause();   // one at a time
       if (P.done) { P.done = false; P.draw(P.t0); }
       if (P.t <= P.t0 + 1e-6) P.wait = asked ? LEAD_ASKED : LEAD;     // from its start: the first picture stays for a moment
@@ -94,22 +118,30 @@
     P.reset = () => { P.playing = false; P.done = false; P.held = false; P.wait = 0; P.draw(P.t0); P.sync(); };
     btn.addEventListener("click", () => { if (P.playing) { P.held = true; P.pause(); } else { P.held = false; P.play(true); } });
 
-    // before it plays: the window in place, still. Without motion: the finished picture, and a button to play it
-    if (reduce) { P.t = P.t1; P.held = true; P.done = true; P.draw(P.t1); } else { P.t = P.t0; P.draw(P.t0); }
+    // before it plays: the first picture, still. Without motion: the finished picture, and a button to play it
+    if (reduce) { P.t = P.t1; P.held = true; P.done = true; }
     P.sync();
-    new ResizeObserver(() => { place(); look(); }).observe(view);
+    new ResizeObserver(() => { if (P.scene) place(); look(); }).observe(view);
+    new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) P.build(); }, { rootMargin: `${NEAR * 100}% 0px` }).observe(sec);
     return P;
   }
 
-  // ---------------------------------------------------------------- which block is in the middle, and for how long
+  // ---------------------------------------------------------------- which region is in the middle, and for how long
   let cand = null, timer = 0, looking = 0;
-  const ready = (P) => !P.playing && !P.done && !P.held && !reduce;
+  const ready = (P) => P.has && !P.playing && !P.done && !P.held && !reduce;
   function check() {
     looking = 0;
     const vh = window.innerHeight;
     let best = null, bd = 9;
     for (const P of players) {
-      const r = P.region.getBoundingClientRect(), v = P.view.getBoundingClientRect();
+      const r = P.region.getBoundingClientRect();
+      if (r.bottom < -vh * NEAR || r.top > vh * (1 + NEAR)) {         // far away (also after a jump): stopped and back at its start
+        P.centred = false;
+        if (P.playing) P.pause();
+        if (!reduce && (P.done || P.held || P.t > P.t0)) P.reset();
+        continue;
+      }
+      const v = P.view.getBoundingClientRect();
       const off = Math.abs((r.top + r.bottom) / 2 - vh / 2) / vh;
       const seen = Math.max(0, Math.min(v.bottom, vh) - Math.max(v.top, 0)) / (v.height || 1);
       P.centred = off <= TOL;
@@ -129,7 +161,7 @@
   });
   tallQ.addEventListener("change", () => { root.classList.toggle("pg-tall", tallQ.matches); for (const P of players) P.draw(P.t); look(); });
 
-  // ---------------------------------------------------------------- one clock for the page; only a block that is playing is drawn
+  // ---------------------------------------------------------------- one clock for the page; only a region that is playing is drawn
   let raf = 0, last = 0;
   function run() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } }
   function tick(now) {
@@ -155,5 +187,5 @@
   }
 
   look();
-  window.PAGE = { players, TOL, DWELL, LEAD, check };   // for checks: PAGE.players[0].draw(t), .ms
+  window.PAGE = { players, TOL, DWELL, LEAD, check, ready: true };   // for checks: PAGE.players[i].build(), .draw(t), .ms
 })();
