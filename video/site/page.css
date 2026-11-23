@@ -1,0 +1,81 @@
+/* The web page around the shots. Colours of a band come from the shot's own scene (page.js reads them),
+   so the picture and the page are one surface: no frame, no edge.
+
+   One block of the page is a REGION: the headline, the line under it, the picture and its button.
+   On one screen every region has the same size, and it always fits the screen with room to spare, so that
+   a viewer can bring the whole of it to the middle (that is also what starts it: see page.js).
+     region height  <= 86% of the screen height
+     words           a slot of fixed height (the longest headline and line under it of the shot table fit)
+     picture         what is left; its width follows from its height
+   Each region sits in the middle of a band one screen tall, so one region is on screen at a time. */
+
+html { -webkit-text-size-adjust: 100%; scroll-snap-type: y proximity; }
+html.pg-nosnap { scroll-snap-type: none; }
+body.pg { margin: 0; background: #faf9f5; color: #141413; font-family: var(--wb-font); overflow-x: hidden; overflow-x: clip; }
+
+:root { --u: 1vh; }
+@supports (height: 1svh) { :root { --u: 1svh; } }   /* phones: the screen with the browser's bars showing */
+
+/* ------------------------------------------------------------ top */
+.pg-hero { position: relative; min-height: calc(100 * var(--u)); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 16px 96px; text-align: center; scroll-snap-align: start; }
+.pg-logo { width: clamp(72px, 9vw, 124px); height: auto; fill: none; stroke: #d97757; stroke-width: 2.1; stroke-linecap: square; stroke-linejoin: miter; }
+.pg-logo .b { opacity: 0.38; }
+.pg-hero h1 { color: #141413; margin: clamp(10px, 1.6vw, 22px) 0 0; font: 500 clamp(46px, 9vw, 124px)/1.08 "IBM Plex Serif", Georgia, serif; letter-spacing: -0.02em; }
+.pg-slogan { margin: clamp(12px, 1.8vw, 26px) 0 0; font-size: clamp(19px, 2.7vw, 40px); line-height: 1.25; color: #5e5d59; }
+.pg-more { position: absolute; left: 0; right: 0; bottom: 28px; display: flex; flex-direction: column; align-items: center; gap: 2px; font: 500 12px/1 var(--wb-mono); letter-spacing: 0.12em; text-transform: uppercase; color: #8a8880; }
+.pg-more svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ------------------------------------------------------------ a band, and the region in the middle of it */
+.pg-band {
+  --gut: clamp(16px, 3vw, 48px);
+  --H: calc(86 * var(--u));                                         /* the region is never taller than this */
+  --fs-h: clamp(21px, min(4.4 * var(--u), 3.6vw), 46px);            /* headline */
+  --fs-s: clamp(14px, min(2.4 * var(--u), 2vw), 23px);              /* the line under it */
+  --hl: 2; --sl: 1;                                                 /* lines kept for each */
+  --T: calc(var(--fs-h) * 1.14 * var(--hl) + var(--fs-s) * 0.5 + var(--fs-s) * 1.4 * var(--sl));
+  --G: calc(2.4 * var(--u));                                        /* between the words and the picture */
+  --C: 0px;                                                         /* a row for the button under the picture (narrow screens) */
+  --ratio: 2.0903;                                                  /* the app window: 1760 x 842 */
+  min-height: calc(100 * var(--u)); display: grid; place-items: center; padding: 0 var(--gut);
+  background: var(--band, #faf9f5); color: var(--cap, #141413); overflow: hidden; overflow: clip; scroll-snap-align: center;
+}
+.pg-region {
+  width: min(100%, 1440px, (var(--H) - var(--T) - var(--G) - var(--C)) * var(--ratio));
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "words ctl" "view view"; column-gap: 20px;
+}
+.pg-words { grid-area: words; height: var(--T); display: flex; flex-direction: column; justify-content: flex-end; margin-bottom: var(--G); }
+.pg-head { flex: none; margin: 0; color: var(--cap, #141413); font: 500 var(--fs-h)/1.14 "IBM Plex Serif", Georgia, serif; letter-spacing: -0.012em; text-wrap: balance; }
+.pg-head mark { font-weight: 600; color: #141413; background: #fdfcf9; padding: 0 0.14em; border-radius: 0.1em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.pg-sub { flex: none; margin: calc(var(--fs-s) * 0.5) 0 0; font-size: var(--fs-s); line-height: 1.4; color: var(--cap2, #5e5d59); }
+
+/* The picture: a 1920x1080 frame of the film, scaled so that the app window fills the region's width.
+   The scene's backdrop is taken away (page.js) and it is not clipped here, so the window's shadow falls on the band itself. */
+.pg-view { grid-area: view; position: relative; aspect-ratio: var(--ratio); }
+.pg-frame { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; pointer-events: none; user-select: none; -webkit-user-select: none; }
+.pg-frame .scene { overflow: visible; }
+.pg-frame .cap, .pg-frame .csubs { visibility: hidden !important; }   /* the words are the page's own text */
+
+.pg-ctl { grid-area: ctl; align-self: end; margin-bottom: var(--G); }
+.pg-btn { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px 0 11px; border: 1.5px solid currentColor; border-color: color-mix(in srgb, currentColor 45%, transparent); border-radius: 17px; background: transparent; color: inherit; font: 500 13.5px/1 var(--wb-font); cursor: pointer; }
+.pg-btn:hover { border-color: currentColor; }
+.pg-btn:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.pg-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ------------------------------------------------------------ upright screens (phones, tablets held upright)
+   The whole window would be too small to read: the picture is a square part of it that follows the action
+   (data-tall on the block), and the button goes under the picture. page.js sets the class. */
+html.pg-tall .pg-band {
+  --fs-h: clamp(20px, min(6.2vw, 3.6 * var(--u)), 34px); --fs-s: clamp(14px, min(3.9vw, 2.3 * var(--u)), 19px); --hl: 3; --sl: 2;
+  --G: 14px; --C: 44px; --ratio: 1;
+}
+html.pg-tall .pg-region { grid-template-columns: minmax(0, 1fr); grid-template-areas: "words" "view" "ctl"; }
+html.pg-tall .pg-view { overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(20, 20, 19, 0.1), 0 18px 36px -16px rgba(20, 20, 19, 0.4); }
+html.pg-tall .pg-ctl { height: var(--C); margin: 0; display: flex; align-items: flex-end; justify-content: flex-end; }
+
+/* ------------------------------------------------------------ ?guide=1: where "in the middle" is */
+.pg-guide { position: fixed; left: 0; right: 0; z-index: 9000; pointer-events: none; border-top: 1px dashed rgba(20, 20, 19, 0.55); font: 500 11px/1 var(--wb-mono); color: rgba(20, 20, 19, 0.75); }
+.pg-guide span { position: absolute; right: 8px; top: 4px; background: rgba(253, 252, 249, 0.85); padding: 2px 5px; border-radius: 3px; }
+.pg-mid { position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid currentColor; opacity: 0.6; pointer-events: none; }
+
+.pg-foot { padding: 40px 16px 56px; text-align: center; font-size: 14px; color: #8a8880; }
+.pg-foot p { margin: 0; }

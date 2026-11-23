@@ -1,0 +1,61 @@
+/* Scenes, captions and the small set of base rules the app's own CSS expects from Bootstrap.
+   (The film page's own frame and player: film.css.)
+   The app's look comes from app/www/*.css, linked as they are. */
+
+*, *::before, *::after { box-sizing: border-box; }
+/* determinism: nothing in a scene may animate on its own */
+.scene, .scene *, .scene *::before, .scene *::after { transition: none !important; animation: none !important; }
+
+p { margin-top: 0; margin-bottom: 1rem; }
+h1, h2, h3, h4, h5, h6 { margin-top: 0; margin-bottom: 0.5rem; line-height: 1.2; }
+ul, ol { margin-top: 0; }
+button { font: inherit; }
+table { caption-side: bottom; }
+b, strong { font-weight: 600; }
+small { font-size: 0.875em; }
+.btn { display: inline-block; text-align: center; vertical-align: middle; cursor: pointer; user-select: none; }
+[hidden] { display: none !important; }
+
+/* a flat backdrop per act; on it, one sheet of warm paper (the app window) and the headline */
+.scene { position: absolute; inset: 0; display: none; overflow: hidden; background: #faf9f5; --cap: #141413; --cap2: #5e5d59; }
+.scene.bg-grey { background: #b9b6ab; }
+.scene.bg-oat { background: #e8e1d2; }
+.scene.bg-kraft { background: #d9ab86; }
+.scene.bg-blue { background: #6a9bcc; --cap: #fdfcf9; --cap2: rgba(253, 252, 249, 0.9); }
+.scene.bg-sage { background: #788c5d; --cap: #fdfcf9; --cap2: rgba(253, 252, 249, 0.9); }
+.scene.bg-clay { background: #c96a4b; --cap: #fdfcf9; --cap2: rgba(253, 252, 249, 0.92); }
+
+/* ------------------------------------------------------------ captions
+   A key shot's headline first stands alone in the middle (big), then docks top left and the picture comes in. */
+.cap { position: absolute; left: 84px; right: 84px; top: 30px; height: 176px; z-index: 100; }
+.cap .kicker { position: absolute; left: 2px; top: 2px; font: 600 18px/1 var(--wb-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--cap); opacity: 0.75; white-space: nowrap; }
+.cap .head { position: absolute; left: 0; top: 34px; font: 500 50px/1.15 "IBM Plex Serif", Georgia, serif; letter-spacing: -0.012em; color: var(--cap); white-space: nowrap; transform-origin: 50% 50%; }
+.cap .head .w { display: inline-block; transform-origin: 50% 90%; white-space: pre; }
+.cap .head .w.hi { font-weight: 600; }
+/* key words: a strip of paper behind them (on a coloured backdrop) or a marker stroke (on a pale one) */
+.cap .head .w.hi i { font-style: normal; color: #141413; background: #fdfcf9; padding: 0 0.14em; margin: 0 -0.05em; border-radius: 0.1em; box-decoration-break: clone; }
+.cap .head.small { top: 40px; font-size: 38px; }
+.cap .sub { position: absolute; left: 2px; top: 106px; font: 400 27px/1.3 var(--wb-font); color: var(--cap2); white-space: nowrap; }
+/* on the title card: the second line, one sentence per line, under the headline */
+.csubs { position: absolute; left: 0; right: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.csub { font: 400 47px/1.3 var(--wb-font); color: var(--cap); opacity: 0.94; white-space: nowrap; text-align: left; }
+.ccaret { display: inline-block; width: 4px; height: 0.95em; margin-left: 5px; vertical-align: -0.12em; background: var(--cap); opacity: 0; }
+.cap .kicker.num { top: 36px; left: 0; width: 52px; height: 52px; border-radius: 50%; background: #141413; color: #fdfcf9; opacity: 1; font: 600 25px/52px var(--wb-mono); letter-spacing: 0; text-align: center; transform-origin: 50% 50%; }
+.cap .head.numbered { left: 70px; }
+.cap .sub.numbered { left: 72px; }
+
+/* ------------------------------------------------------------ stage: the window the app is drawn in */
+.stage {
+  position: absolute; left: 80px; top: 214px; width: 1760px; height: 842px; border-radius: 16px; overflow: hidden; background: #fff; z-index: 10;
+  box-shadow: 0 2px 4px rgba(20, 20, 19, 0.08), 0 36px 70px -24px rgba(20, 20, 19, 0.42); transform-origin: 50% 60%;
+}
+.cam { position: absolute; left: 0; top: 0; width: 1000px; height: 478px; transform-origin: 0 0; }
+.app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--wb-paper); }
+
+/* pointer and click ring (in app coordinates, so it zooms with the camera) */
+.cur { position: absolute; left: 0; top: 0; width: 20px; height: 24px; z-index: 5000; pointer-events: none; transform-origin: 2px 2px; }
+.cur svg { display: block; filter: drop-shadow(0 1px 2px rgba(24, 34, 44, 0.35)); }
+.cur-ring {
+  position: absolute; left: -17px; top: -17px; width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--wb-accent);
+  background: rgba(217, 119, 87, 0.18); opacity: 0;
+}

@@ -1,0 +1,119 @@
+/* AI Workbench — design tokens and base styles.
+ *
+ * Direction: a clean scientific document, not a developer tool.
+ *   paper / mist   white surfaces on a cool, very light grey
+ *   ink / slate    dark blue-grey text, two levels
+ *   viridian       the single accent, from the viridis colour scale of statistical graphics
+ * Shadows are used only for layers that float (menus, dialogs, toast);
+ * everything else is separated by hairlines and space.
+ */
+:root {
+  --wb-paper: #ffffff;
+  --wb-mist: #f4f6f7;
+  --wb-mist-2: #eaeef0;
+  --wb-ink: #18222c;
+  --wb-slate: #56646f;
+  --wb-faint: #8a96a0;
+  --wb-line: #e3e8eb;
+  --wb-line-strong: #cbd3d9;
+  --wb-accent: #1f7a6d;
+  --wb-accent-strong: #17645a;
+  --wb-accent-tint: #e8f2f0;
+  --wb-accent-ring: rgba(31, 122, 109, 0.22);
+  --wb-select-on-tint: rgba(31, 122, 109, 0.34);  /* selected text on an accent-tint background (the user's messages) */
+  --wb-warn: #8f5d00;
+  --wb-warn-tint: #fbf3df;
+  --wb-danger: #b3362e;
+  --wb-danger-tint: #fbecea;
+
+  --wb-font: "IBM Plex Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+    system-ui, sans-serif;
+  --wb-mono: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  --wb-r-s: 6px;   /* chips, small controls */
+  --wb-r: 8px;     /* buttons, inputs */
+  --wb-r-l: 14px;  /* floating panels */
+  --wb-shadow-pop: 0 1px 2px rgba(24, 34, 44, 0.06), 0 14px 36px -10px rgba(24, 34, 44, 0.24);
+}
+
+/* ------------------------------------------------------------ base */
+body {
+  --bs-body-font-family: var(--wb-font);
+  --bs-body-color: var(--wb-ink);
+  --bs-body-bg: var(--wb-paper);
+  --bs-border-color: var(--wb-line);
+  --bs-link-color: var(--wb-accent);
+  --bs-link-color-rgb: 31, 122, 109;
+  --bs-link-hover-color: var(--wb-accent-strong);
+  --bs-primary: var(--wb-accent);
+  --bs-primary-rgb: 31, 122, 109;
+  font-family: var(--wb-font);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--wb-ink);
+  background: var(--wb-paper);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum" 0;
+}
+h1, h2, h3, h4, h5, h6 { color: var(--wb-ink); font-weight: 600; letter-spacing: 0; }
+a { color: var(--wb-accent); text-decoration: none; }
+a:hover { color: var(--wb-accent-strong); }
+code, pre, kbd { font-family: var(--wb-mono); }
+code { color: inherit; background: var(--wb-mist); border-radius: 4px; padding: 0.1em 0.35em; font-size: 0.88em; }
+pre code { background: transparent; padding: 0; }
+.muted { color: var(--wb-slate); }
+::selection { background: var(--wb-accent-tint); }
+:focus-visible { outline: 2px solid var(--wb-accent); outline-offset: 2px; }
+.wb-ico { width: 1em; height: 1em; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.75;
+  stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.14em; }
+
+/* ------------------------------------------------------------ buttons */
+body .btn {
+  --bs-btn-font-family: var(--wb-font);
+  font-size: 0.92rem; font-weight: 500; line-height: 1.4; padding: 0.46rem 0.95rem;
+  border-radius: var(--wb-r); border: 1px solid var(--wb-line-strong);
+  background: var(--wb-paper); color: var(--wb-ink); box-shadow: none;
+  transition: background-color 0.12s, border-color 0.12s, color 0.12s;
+}
+body .btn:hover { background: var(--wb-mist); border-color: var(--wb-line-strong); color: var(--wb-ink); }
+body .btn:active { background: var(--wb-mist-2); }
+body .btn-sm { font-size: 0.86rem; padding: 0.32rem 0.7rem; }
+body .btn-primary { background: var(--wb-accent); border-color: var(--wb-accent); color: #fff; }
+body .btn-primary:hover { background: var(--wb-accent-strong); border-color: var(--wb-accent-strong); color: #fff; }
+body .btn-primary:active { background: var(--wb-accent-strong); }
+body .btn-danger { background: var(--wb-danger); border-color: var(--wb-danger); color: #fff; }
+body .btn-danger:hover, body .btn-danger:active { background: #962c25; border-color: #962c25; color: #fff; }
+body .btn-danger:disabled { background: var(--wb-danger); border-color: var(--wb-danger); color: #fff; opacity: 0.4; }
+body .btn:disabled, body .btn.disabled { opacity: 0.45; pointer-events: none; }
+body .btn-quiet { border-color: transparent; background: transparent; color: var(--wb-slate); }
+body .btn-quiet:hover { background: var(--wb-mist-2); border-color: transparent; color: var(--wb-ink); }
+
+/* ------------------------------------------------------------ form fields */
+body .form-control {
+  font-family: var(--wb-font); font-size: 0.95rem; color: var(--wb-ink); background: var(--wb-paper);
+  border: 1px solid var(--wb-line-strong); border-radius: var(--wb-r); padding: 0.5rem 0.7rem; box-shadow: none;
+}
+body .form-control::placeholder { color: var(--wb-faint); }
+body .form-control:focus { border-color: var(--wb-accent); box-shadow: 0 0 0 3px var(--wb-accent-ring); }
+body .control-label, body .form-label, body .shiny-input-container > label {
+  font-size: 0.84rem; font-weight: 500; color: var(--wb-slate); margin-bottom: 0.3rem;
+}
+
+/* ------------------------------------------------------------ dialogs */
+body .modal-backdrop { --bs-backdrop-bg: #18222c; --bs-backdrop-opacity: 0.32; }
+body .modal-content { border: 0; border-radius: var(--wb-r-l); box-shadow: var(--wb-shadow-pop); }
+body .modal-header { border: 0; padding: 20px 24px 6px; }
+body .modal-title { font-size: 1.08rem; font-weight: 600; }
+body .modal-body { padding: 10px 24px 8px; }
+body .modal-footer { border: 0; padding: 12px 24px 20px; gap: 8px; }
+body .modal-footer > * { margin: 0; }
+
+body .shiny-notification {
+  border: 0; border-radius: var(--wb-r); background: var(--wb-ink); color: #fff; opacity: 1;
+  box-shadow: var(--wb-shadow-pop); font-size: 0.9rem;
+}
+body .shiny-notification-close { color: #fff; opacity: 0.7; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation-duration: 0.001s !important; }
+}

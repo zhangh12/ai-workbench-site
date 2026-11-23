@@ -1,0 +1,11 @@
+{
+  "name": "ai-workbench-video",
+  "private": true,
+  "description": "Product video for AI Workbench, built as a time-driven HTML page and rendered frame by frame.",
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "5.2.7",
+    "@fontsource/ibm-plex-sans": "5.2.8",
+    "katex": "0.16.22",
+    "@fontsource/ibm-plex-serif": "5.2.7"
+  }
+}

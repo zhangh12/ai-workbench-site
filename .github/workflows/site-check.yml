@@ -1,0 +1,43 @@
+# The page prototype (video/site) in the browsers of a Windows machine: Chrome, Edge, Firefox, and WebKit
+# (the engine of Safari, not Safari itself). The report is on the run's page; the pictures are in its artifact.
+name: Page prototype check (Windows)
+
+on:
+  push:
+    paths:
+      - "video/site/**"
+      - "video/src/**"
+      - "video/data/data.js"
+      - ".github/workflows/site-check.yml"
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Fonts and KaTeX
+        working-directory: video
+        run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Playwright and its browsers
+        run: |
+          pip install playwright==1.65.2
+          python -m playwright install firefox webkit
+      - name: Check
+        run: python video/site/check.py --browsers chrome,msedge,firefox,webkit --out check-out
+      - name: Report
+        if: always()
+        shell: bash
+        run: cat check-out/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: site-check
+          path: check-out
