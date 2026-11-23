@@ -1,4 +1,4 @@
-# Consilium: page prototype
+# AI Workbench: page prototype
 
 A prototype of a product page that plays short animations where the reader scrolls to them. Nothing on the page
 is a video file: each block is drawn live in the browser by animation code, and plays when its region has been
