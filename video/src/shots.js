@@ -13,7 +13,7 @@
 //   bg      the act's backdrop colour (base.css); the window is a sheet of warm paper on it
 //   covers  what in video-prompt.md the shot shows (for the coverage check)
 // the one line under the name: on the opening card, the end card and the cover image
-V.SLOGAN = "A new way to work with AI.";
+V.SLOGAN = "Work, together.";
 
 V.ACTS = [
   { id: "open", theme: "paper", shots: [
