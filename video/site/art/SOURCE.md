@@ -11,10 +11,10 @@ by a robot's.
 - The left hand and the wall are the photograph as it is: no retouching, no colour correction. The picture is written
   at twice the size of the part used (2080 x 816), so that what is drawn on it is sharp.
 - The painted right hand and forearm are taken off the wall: the wall's own tone is carried across the place, with the
-  wall's grain. A robot's arm is drawn in their place, reaching in from the right with its first finger pointing at
-  the other hand's (forearm shells with a piston between them, a ball at the wrist, a palm plate, fingers of three
-  parts with a pin at every joint). This is done by `make_art.py` (which also says exactly how); nothing is painted by
-  hand and no image generator is used.
+  wall's grain. A robot's arm is put in their place, reaching in from the right with its first finger pointing at the
+  other hand's. It is not drawn with lines: it is modelled from round parts (tubes, balls, a domed shell) and every
+  point is lit as polished metal from the direction it faces. This is done by `make_art.py` (which also says exactly
+  how); nothing is painted by hand and no image generator is used.
 
 To make it again: download the photograph, then
 
