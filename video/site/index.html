@@ -20,15 +20,15 @@
 <link rel="stylesheet" href="../src/base.css">
 <link rel="stylesheet" href="../src/sketch.css">
 <link rel="stylesheet" href="../src/scenes.css">
-<link rel="stylesheet" href="page.css?v=13">
+<link rel="stylesheet" href="page.css?v=15">
 </head>
 <body class="pg">
 
 <header class="pg-hero">
   <h1>Synergia</h1>
   <p class="pg-slogan" id="slogan"></p>
-  <!-- the two hands of Michelangelo's Creation of Adam: where it is from is in art/SOURCE.md -->
-  <figure class="pg-art"><img src="art/creation-hands.jpg" width="1040" height="408" decoding="async" alt="Two hands reaching for each other, the fingers about to touch: a detail of Michelangelo’s Creation of Adam"></figure>
+  <!-- the two hands of Michelangelo's Creation of Adam, the right one made mechanical: where it is from and how it is made is in art/SOURCE.md -->
+  <figure class="pg-art"><img src="art/creation-hands.jpg?v=2" width="1040" height="408" decoding="async" alt="Two hands reaching for each other, the fingers about to touch: a detail of Michelangelo’s Creation of Adam, in which the hand on the right is a mechanical hand"></figure>
   <div class="pg-more" aria-hidden="true"><span>Scroll</span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
 </header>
 
@@ -36,13 +36,13 @@
   <!-- one block = one shot of the film: data-act and data-shot name it in ../src/shots.js; its words come from there too.
        data-tall: on upright screens (phones) the picture is a square part of the window; "seconds share" pairs say where
        its left edge is (share of the window's width) at each time into the shot, and it glides from one to the next -->
-  <section class="pg-band" data-act="explore" data-shot="c2" data-tall="0 0"></section>
+  <section class="pg-band" data-act="explore" data-shot="c2" data-tall="0 0, 1.9 0, 2.7 .085, 4.0 .085, 4.7 0"></section>
   <section class="pg-band" data-act="refs" data-shot="d2" data-tall="0 .34, 0.3 .34, 1.2 .27, 2.9 .27, 3.6 .52, 8.4 .52, 9.2 .27, 11.0 .27, 11.8 .52"></section>
 </main>
 
 <footer class="pg-foot">
   <p>Prototype. The blocks above are drawn live by animation code; no video file is loaded.</p>
-  <p>Painting: Michelangelo, <i>The Creation of Adam</i> (detail), Sistine Chapel, about 1511. Photograph: Jörg Bittner Unna, public domain, via Wikimedia Commons.</p>
+  <p>Picture: after Michelangelo, <i>The Creation of Adam</i> (detail), Sistine Chapel, about 1511; the hand on the right has been changed into a mechanical one. Photograph: Jörg Bittner Unna, public domain, via Wikimedia Commons.</p>
 </footer>
 
 <script src="../node_modules/katex/dist/katex.min.js"></script>
@@ -54,6 +54,6 @@
 <script src="../src/lung.js"></script>
 <script src="../src/scenes/explore.js"></script>
 <script src="../src/scenes/refs.js"></script>
-<script src="page.js?v=13"></script>
+<script src="page.js?v=15"></script>
 </body>
 </html>

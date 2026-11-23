@@ -23,6 +23,7 @@ how many ms), `?snap=0` (no snapping to the middle), `?guide=1` (shows where the
 - `.github/workflows/site-check.yml`: runs the check on Windows in Chrome, Edge, Firefox and WebKit.
 
 The picture on the first screen is a detail of Michelangelo's *The Creation of Adam* (Sistine Chapel, about 1511),
-from a public-domain photograph by Jörg Bittner Unna on Wikimedia Commons; see `video/site/art/SOURCE.md`.
+from a public-domain photograph by Jörg Bittner Unna on Wikimedia Commons, with the hand on the right changed into a
+mechanical hand; see `video/site/art/SOURCE.md`.
 
 The data on screen is public (the `lung` data set of R's survival package, PubMed, ClinicalTrials.gov) or synthetic.
