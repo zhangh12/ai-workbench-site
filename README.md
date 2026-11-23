@@ -17,9 +17,12 @@ Values to try in the address: `?tol=12&dwell=400` (how near the middle, in perce
 how many ms), `?snap=0` (no snapping to the middle), `?guide=1` (shows where the middle is).
 
 ## Files
-- `video/site/`: the page (`index.html`, `page.css`, `page.js`) and its browser check (`check.py`).
+- `video/site/`: the page (`index.html`, `page.css`, `page.js`), the picture (`art/`) and its browser check (`check.py`).
 - `video/src/`: the animation code the blocks are drawn with. `shots.js` has the words.
 - `video/data/data.js`: the numbers shown, from public and synthetic data.
 - `.github/workflows/site-check.yml`: runs the check on Windows in Chrome, Edge, Firefox and WebKit.
+
+The picture on the first screen is a detail of Michelangelo's *The Creation of Adam* (Sistine Chapel, about 1511),
+from a public-domain photograph by Jörg Bittner Unna on Wikimedia Commons; see `video/site/art/SOURCE.md`.
 
 The data on screen is public (the `lung` data set of R's survival package, PubMed, ClinicalTrials.gov) or synthetic.

@@ -17,12 +17,20 @@ body.pg { margin: 0; background: #faf9f5; color: #141413; font-family: var(--wb-
 @supports (height: 1svh) { :root { --u: 1svh; } }   /* phones: the screen with the browser's bars showing */
 
 /* ------------------------------------------------------------ top */
-.pg-hero { position: relative; min-height: calc(100 * var(--u)); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 16px 96px; text-align: center; scroll-snap-align: start; }
-.pg-logo { width: clamp(72px, 9vw, 124px); height: auto; fill: none; stroke: #d97757; stroke-width: 2.1; stroke-linecap: square; stroke-linejoin: miter; }
-.pg-logo .b { opacity: 0.38; }
-.pg-hero h1 { color: #141413; margin: clamp(10px, 1.6vw, 22px) 0 0; font: 500 clamp(46px, 9vw, 124px)/1.08 "IBM Plex Serif", Georgia, serif; letter-spacing: -0.02em; }
-.pg-slogan { margin: clamp(12px, 1.8vw, 26px) 0 0; font-size: clamp(19px, 2.7vw, 40px); line-height: 1.25; color: #5e5d59; }
-.pg-more { position: absolute; left: 0; right: 0; bottom: 28px; display: flex; flex-direction: column; align-items: center; gap: 2px; font: 500 12px/1 var(--wb-mono); letter-spacing: 0.12em; text-transform: uppercase; color: #8a8880; }
+.pg-hero { position: relative; min-height: calc(100 * var(--u)); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: clamp(12px, 6 * var(--u), 48px) 16px clamp(48px, 12 * var(--u), 96px); text-align: center; scroll-snap-align: start; }
+/* The painting above the name: the two hands, as they are in the fresco. It has no frame: it fades out on all
+   four sides, into the page's paper. */
+.pg-art { order: -1; margin: 0 0 clamp(6px, 1.6 * var(--u), 22px); width: min(100%, 1040px, 42 * var(--u) * 2.55); }
+.pg-art img {
+  display: block; width: 100%; height: auto; aspect-ratio: 1040 / 408; object-fit: cover; object-position: 48% 50%;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent), linear-gradient(to bottom, transparent, #000 20%, #000 78%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent), linear-gradient(to bottom, transparent, #000 20%, #000 78%, transparent);
+  -webkit-mask-composite: source-in; mask-composite: intersect;
+}
+html.pg-tall .pg-art img { aspect-ratio: 16 / 10; }   /* upright screens: closer on the hands */
+.pg-hero h1 { color: #141413; margin: 0; font: 500 clamp(30px, min(9vw, 13 * var(--u)), 124px)/1.08 "IBM Plex Serif", Georgia, serif; letter-spacing: -0.02em; }
+.pg-slogan { margin: clamp(6px, min(1.8vw, 2.4 * var(--u)), 26px) 0 0; font-size: clamp(15px, min(2.7vw, 4.4 * var(--u)), 40px); line-height: 1.25; color: #5e5d59; }
+.pg-more { position: absolute; left: 0; right: 0; bottom: clamp(8px, 3.4 * var(--u), 28px); display: flex; flex-direction: column; align-items: center; gap: 2px; font: 500 12px/1 var(--wb-mono); letter-spacing: 0.12em; text-transform: uppercase; color: #8a8880; }
 .pg-more svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 /* ------------------------------------------------------------ a band, and the region in the middle of it */
@@ -78,4 +86,5 @@ html.pg-tall .pg-ctl { height: var(--C); margin: 0; display: flex; align-items: 
 .pg-mid { position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid currentColor; opacity: 0.6; pointer-events: none; }
 
 .pg-foot { padding: 40px 16px 56px; text-align: center; font-size: 14px; color: #8a8880; }
-.pg-foot p { margin: 0; }
+.pg-foot p { margin: 0 auto; max-width: 720px; line-height: 1.5; }
+.pg-foot p + p { margin-top: 6px; font-size: 12.5px; }

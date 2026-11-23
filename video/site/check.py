@@ -5,7 +5,7 @@
 
 For each browser:
   sizes     at common screens a region is at most 86% of the screen height, nothing sticks out sideways,
-            and every headline of the shot table fits the words slot
+            every headline of the shot table fits the words slot, and the first screen (painting, name) is one screen
   playing   starts when held in the middle, not when passed; pauses, goes on, starts again; one at a time
   pictures  each shot at a few moments, on a laptop screen and on a phone (out/<browser>/*.png)
   text      where every piece of text of each shot is and how tall it is. Scenes measure text while they are built,
@@ -41,7 +41,9 @@ SIZE_JS = """() => { const vh = innerHeight, tall = document.documentElement.cla
   for (const a of V.ACTS) for (const s of a.shots) { if (!s.head) continue; hd.textContent = s.head.replace(/\\*/g, ''); sb.textContent = s.sub || '';
     const need = hd.getBoundingClientRect().height + (s.sub ? sb.getBoundingClientRect().height + parseFloat(getComputedStyle(sb).marginTop) : 0); if (need > worst) { worst = need; which = s.id; } }
   hd.innerHTML = keep[0]; sb.textContent = keep[1];
-  return { tall, blocks: out, slot, worst: Math.round(worst), which, over: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }"""
+  const art = document.querySelector('.pg-art img'), more = document.querySelector('.pg-more').getBoundingClientRect(), slo = document.querySelector('.pg-slogan').getBoundingClientRect();
+  return { tall, blocks: out, slot, worst: Math.round(worst), which, over: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    hero: document.querySelector('.pg-hero').getBoundingClientRect().height / vh, art: !!art && art.complete && art.naturalWidth > 0, artW: art ? Math.round(art.getBoundingClientRect().width) : 0, room: Math.round(more.top - slo.bottom) }; }"""
 # every piece of text of a shot at a time: what it says, where it is and how big, in the film's own pixels
 TEXT_JS = """([i, u]) => { const P = PAGE.players[i]; P.draw(P.t0 + u); const v = P.view.getBoundingClientRect(), k = v.width / 1760, out = [];
   for (const e of P.scene.root.querySelectorAll('*')) { if (e.childElementCount || !e.textContent.trim() || e.closest('.cap, .csubs, .katex')) continue;
@@ -109,6 +111,9 @@ def sizes(b, url, log):
         if band < 0.999: bad.append(f"band is {band:.2f} of the screen height")
         if r["over"] > 0: bad.append(f"{r['over']}px stick out sideways")
         if r["worst"] > r["slot"] + 1: bad.append(f"headline of {r['which']} needs {r['worst']}px, the slot is {r['slot']}px")
+        if not r["art"]: bad.append("the painting did not load")
+        if abs(r["hero"] - 1) > 0.005: bad.append(f"the first screen is {r['hero']:.2f} of the screen height")
+        if r["room"] < 8: bad.append(f"the first screen is too full: {r['room']}px between the line under the name and the scroll hint")
         x = r["blocks"][0]
         table.append((name, f"{w}x{h}", "upright" if r["tall"] else "wide", f"{reg:.2f}", f"{x['pic'][0]}x{x['pic'][1]}", f"{22 * x['k']:.1f}px", "ok" if not bad else "; ".join(bad)))
         if bad: log.add("FAIL", f"size at {w}x{h}", "; ".join(bad))
